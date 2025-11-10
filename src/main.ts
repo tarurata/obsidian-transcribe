@@ -94,7 +94,12 @@ export default class TranscribePlugin extends Plugin {
             // Create FormData
             const formData = new FormData();
             formData.append('file', audioFile);
-            formData.append('model', 'whisper-1');
+            formData.append('model', this.settings.model);
+
+            // Add language if not auto-detect
+            if (this.settings.language && this.settings.language !== 'auto') {
+                formData.append('language', this.settings.language);
+            }
 
             // Call OpenAI Whisper API
             const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
