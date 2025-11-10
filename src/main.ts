@@ -72,21 +72,32 @@ export default class TranscribePlugin extends Plugin {
     }
 
     async transcribeAndInsert(audioBlob: Blob) {
+        // Determine file extension based on blob type (do this early so we can save even if transcription fails)
+        let extension = 'webm';
+        let mimeType = audioBlob.type || 'audio/webm';
+        if (mimeType.includes('mp4')) {
+            extension = 'mp4';
+        } else if (mimeType.includes('ogg')) {
+            extension = 'ogg';
+        }
+
+        // Save recording if enabled (do this early, before transcription)
+        // This ensures the recording is saved regardless of transcription success/failure
+        if (this.settings.saveRecordings) {
+            try {
+                await this.saveRecording(audioBlob, extension, mimeType);
+            } catch (saveError) {
+                console.error('Error saving recording:', saveError);
+                // Continue with transcription even if saving fails
+            }
+        }
+
         try {
             // Show loading notification
             const loadingNotification = document.createElement('div');
             loadingNotification.className = 'transcribe-loading-notification';
             loadingNotification.textContent = 'Transcribing...';
             document.body.appendChild(loadingNotification);
-
-            // Determine file extension based on blob type
-            let extension = 'webm';
-            let mimeType = audioBlob.type || 'audio/webm';
-            if (mimeType.includes('mp4')) {
-                extension = 'mp4';
-            } else if (mimeType.includes('ogg')) {
-                extension = 'ogg';
-            }
 
             // Convert audio blob to File for FormData
             const audioFile = new File([audioBlob], `recording.${extension}`, { type: mimeType });
@@ -163,6 +174,28 @@ export default class TranscribePlugin extends Plugin {
             document.body.appendChild(errorNotification);
             setTimeout(() => errorNotification.remove(), 5000);
         }
+    }
+
+    async saveRecording(audioBlob: Blob, extension: string, mimeType: string): Promise<void> {
+        // Get the recordings directory path
+        const recordingsDir = this.settings.recordingsDirectory || 'recordings';
+
+        // Ensure directory exists
+        const dirExists = await this.app.vault.adapter.exists(recordingsDir);
+        if (!dirExists) {
+            await this.app.vault.adapter.mkdir(recordingsDir);
+        }
+
+        // Generate filename with timestamp
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').split('.')[0];
+        const filename = `recording_${timestamp}.${extension}`;
+        const filePath = `${recordingsDir}/${filename}`;
+
+        // Convert blob to ArrayBuffer
+        const arrayBuffer = await audioBlob.arrayBuffer();
+
+        // Save the file
+        await this.app.vault.adapter.writeBinary(filePath, arrayBuffer);
     }
 
     async loadSettings() {

@@ -6,13 +6,17 @@ export interface TranscribeSettings {
     maxTokens: number;
     model: string;
     language: string;
+    saveRecordings: boolean;
+    recordingsDirectory: string;
 }
 
 export const DEFAULT_SETTINGS: TranscribeSettings = {
     openaiApiKey: "",
     maxTokens: 4096,
     model: "whisper-1",
-    language: "auto"
+    language: "auto",
+    saveRecordings: false,
+    recordingsDirectory: "recordings"
 }
 
 export class TranscribeSettingTab extends PluginSettingTab {
@@ -131,6 +135,29 @@ export class TranscribeSettingTab extends PluginSettingTab {
 
         // Initialize estimated words display
         updateEstimatedWords(this.plugin.settings.maxTokens);
+
+        // Save recordings toggle
+        new Setting(containerEl)
+            .setName("Save Recordings")
+            .setDesc("Save audio recordings to a directory in your vault")
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.saveRecordings)
+                .onChange(async (value) => {
+                    this.plugin.settings.saveRecordings = value;
+                    await this.plugin.saveSettings();
+                }));
+
+        // Recordings directory name
+        new Setting(containerEl)
+            .setName("Recordings Directory")
+            .setDesc("Directory name where recordings will be saved (relative to vault root)")
+            .addText(text => text
+                .setPlaceholder("recordings")
+                .setValue(this.plugin.settings.recordingsDirectory)
+                .onChange(async (value) => {
+                    this.plugin.settings.recordingsDirectory = value || "recordings";
+                    await this.plugin.saveSettings();
+                }));
     }
 }
 
