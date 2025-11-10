@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Sync plugin files to Obsidian vault
+# Copy this file to sync.sh and update the VAULT_PLUGIN_DIR path
+
+PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Update this path to your Obsidian vault's plugins directory
+VAULT_PLUGIN_DIR="$HOME/path/to/your/vault/.obsidian/plugins/obsidian-transcribe"
+
+echo "🔨 Building plugin..."
+cd "$PLUGIN_DIR"
+npm run build
+
+if [ $? -ne 0 ]; then
+    echo "❌ Build failed! Aborting sync."
+    exit 1
+fi
+
+echo "📦 Syncing files to Obsidian vault..."
+mkdir -p "$VAULT_PLUGIN_DIR"
+
+# Copy only the necessary runtime files
+cp main.js manifest.json styles.css "$VAULT_PLUGIN_DIR/"
+
+if [ $? -eq 0 ]; then
+    echo "✅ Plugin synced successfully!"
+    echo "📁 Files copied to: $VAULT_PLUGIN_DIR"
+    echo ""
+    echo "💡 Tip: Reload Obsidian plugins (Settings → Community Plugins → Reload) to see changes."
+else
+    echo "❌ Sync failed!"
+    exit 1
+fi
+

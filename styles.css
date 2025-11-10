@@ -1,0 +1,131 @@
+/* Floating Button */
+.transcribe-floating-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: var(--interactive-accent);
+    color: var(--text-on-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: none;
+}
+
+.transcribe-floating-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.transcribe-floating-button:active {
+    transform: scale(0.95);
+}
+
+.transcribe-floating-button svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Recording Modal */
+.transcribe-modal {
+    min-width: 300px;
+}
+
+.transcribe-modal .modal-content {
+    padding: 20px;
+    text-align: center;
+}
+
+.transcribe-timer {
+    font-size: 48px;
+    font-weight: bold;
+    margin: 20px 0;
+    color: var(--text-normal);
+    font-family: var(--font-monospace);
+}
+
+.transcribe-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.transcribe-buttons button {
+    min-width: 100px;
+}
+
+/* Notifications */
+.transcribe-loading-notification,
+.transcribe-success-notification,
+.transcribe-error-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 10000;
+    font-size: 14px;
+    animation: slideIn 0.3s ease-out;
+}
+
+.transcribe-loading-notification {
+    background-color: var(--interactive-accent);
+    color: var(--text-on-accent);
+}
+
+.transcribe-success-notification {
+    background-color: var(--background-modifier-success);
+    color: var(--text-on-accent);
+}
+
+.transcribe-error-notification {
+    background-color: var(--background-modifier-error);
+    color: var(--text-on-accent);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .transcribe-floating-button {
+        bottom: 80px;
+        right: 20px;
+        width: 64px;
+        height: 64px;
+    }
+
+    .transcribe-floating-button svg {
+        width: 28px;
+        height: 28px;
+    }
+
+    .transcribe-timer {
+        font-size: 36px;
+    }
+
+    .transcribe-buttons {
+        flex-direction: column;
+    }
+
+    .transcribe-buttons button {
+        width: 100%;
+    }
+}
